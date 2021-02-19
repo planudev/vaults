@@ -18,4 +18,6 @@ interface IStrategy {
     function balanceOf() external view returns (uint256);
 
     function withdrawalFee() external view returns (uint256);
+    
+    function annualPercentageYield() external view returns (uint256);
 }

@@ -57,7 +57,35 @@ contract Controller {
         return IStrategy(strategies[_token]).balanceOf();
     }
 
-    function compareAPY(address _token) internal view returns (address bestStrategy) {
+    function getBestStrategy(address _token) internal view returns (address bestStrategy) {
+        bestStrategy = address(0);
+        uint maxApy = 0;
+        for (uint i = 0; i < availableStrategies[_token].length(); i++) {
+            if (bestStrategy == address(0)) {
+                bestStrategy = availableStrategies[_token].at(i);
+                maxApy = IStrategy(availableStrategies[_token].at(i)).annualPercentageYield();
+            }
 
+            uint256 apy = IStrategy(availableStrategies[_token].at(i)).annualPercentageYield();
+            if (maxApy < apy) {
+                bestStrategy = availableStrategies[_token].at(i);
+                maxApy = apy;
+            }
+        }
+
+        return bestStrategy;
+    }
+
+    function invest(address _token, uint256 _amount) external {
+        address currentStrategy = strategies[_token];
+        address bestStrategy = getBestStrategy(_token);
+
+        if (currentStrategy == bestStrategy) {
+            return;
+        }
+
+        currentStrategy = bestStrategy;
+        IERC20(_token).safeTransfer(currentStrategy, _amount);
+        IStrategy(bestStrategy).deposit();
     }
 }
