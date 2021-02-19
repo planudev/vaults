@@ -4,19 +4,13 @@ pragma solidity ^0.8.0;
 import "./interfaces/IStrategy.sol";
 import "./interfaces/IERC20.sol";
 import "./libraries/SafeERC20.sol";
-
-enum LendingProtocol {
-    Cream,
-    ForTube,
-    Venus
-}
+import "./libraries/Address.sol";
+import "./libraries/EnumerableSet.sol";
 
 contract Controller {
     using SafeERC20 for IERC20;
-
-    address public cream;
-    address public forTube;
-    address public venus;
+    using Address for address;
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     address public strategist;
 
@@ -26,11 +20,10 @@ contract Controller {
     // active strategy on certain token (token, strategy)
     mapping (address => address) strategies;
 
-    constructor(address _cream, address _forTube, address _venus) {
-        cream = _cream;
-        forTube = _forTube;
-        venus = _venus;
+    // token -> strategy[]
+    mapping (address => EnumerableSet.AddressSet) availableStrategies;
 
+    constructor() {
         strategist = msg.sender;
     }
 
@@ -52,24 +45,19 @@ contract Controller {
         strategies[_token] = _strategy;
     }
 
+    function addStrategy(address _token, address _strategy) public {
+        require(msg.sender == strategist, "!strategist");
+        require(_strategy.isContract(), "Strategy is not a contract");
+        require(!availableStrategies[_token].contains(_strategy), "Strategy already exists");
+
+        availableStrategies[_token].add(_strategy);
+    }
+
     function balanceOf(address _token) external view returns (uint256) {
         return IStrategy(strategies[_token]).balanceOf();
     }
 
-    // Transfers the profits earned from the yield generating activities of the Strategy to the Vault. Takes an address of a token to withdraw and an amount.
-    function earn(address _token, uint256 _amount) external {
-        address currentStrategy = strategies[_token];
-        address want = IStrategy(currentStrategy).want();
-        if (want != _token) {
-            revert();
-        } else {
-            IERC20(_token).safeTransfer(currentStrategy, _amount);
-        }
+    function compareAPY(address _token) internal view returns (address bestStrategy) {
 
-        IStrategy(currentStrategy).deposit();
-    }
-
-    function compareAPY() internal view returns (LendingProtocol) {
-        
     }
 }
