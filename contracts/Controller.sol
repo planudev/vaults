@@ -52,6 +52,10 @@ contract Controller {
         strategies[_token] = _strategy;
     }
 
+    function balanceOf(address _token) external view returns (uint256) {
+        return IStrategy(strategies[_token]).balanceOf();
+    }
+
     // Transfers the profits earned from the yield generating activities of the Strategy to the Vault. Takes an address of a token to withdraw and an amount.
     function earn(address _token, uint256 _amount) external {
         address currentStrategy = strategies[_token];
@@ -66,6 +70,6 @@ contract Controller {
     }
 
     function compareAPY() internal view returns (LendingProtocol) {
-
+        
     }
 }
