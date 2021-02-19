@@ -37,7 +37,7 @@ contract pVault is ERC20, IVault {
     }
 
     function invest() internal {
-        // TODO [$602f78e3832b910974b70f64]: Maybe need to check for minimum invest something like
+        // TODO [#1]: Maybe need to check for minimum invest something like
         // if it have more than 0.1 Tokens then invest to save gas fee
         uint256 availableBalance = available();
         token.safeTransfer(controller, availableBalance);
