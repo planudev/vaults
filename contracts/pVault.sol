@@ -25,7 +25,7 @@ contract pVault is ERC20, IVault {
     }
 
     function balance() public view returns (uint) {
-        return token.balanceOf(address(this)) + IController(controller).balanceOf(token);
+        return token.balanceOf(address(this)) + IController(controller).balanceOf(address(token));
     }
 
     function available() public view returns (uint) {
