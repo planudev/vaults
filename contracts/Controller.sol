@@ -89,3 +89,23 @@ contract Controller {
         IStrategy(bestStrategy).deposit();
     }
 }
+
+
+
+/*
+
+StrategyVenusBUSD.sol    -|                          |
+StrategyVenusUSDC.sol     |--- StrategyVenus    -----|
+StrategyVenusUSDT.sol    -|                          |
+...                                                  |
+StrategyForTubeBUSD.sol  -|                          |
+StrategyForTubeUSDC.sol   |--- StrategyForTube  -----|-------- IStrategy
+StrategyForTubeUSDT.sol  -|                          |
+....                                                 |
+StrategyCreamBUSD.sol    -|                          |
+StrategyCreamUSDC.sol     |--- StrategyCream    -----|
+StrategyCreamUSDT.sol    -|
+....
+
+
+*/
