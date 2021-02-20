@@ -4,24 +4,8 @@ pragma solidity ^0.8.0;
 import "./StrategyStorage.sol";
 import "../interfaces/IBEP20.sol";
 import "../interfaces/IVToken.sol";
-// import "../interfaces/IStrategy.sol";
 
-// contract StrategyVenus is StrategyStorage, IStrategy {
 contract StrategyVenus is StrategyStorage {
-
-    // function want() external view returns (address);
-
-    // function deposit() external;
-
-    // function withdraw(uint256) external;
-
-    // function withdrawAll() external returns (uint256);
-
-    // function balanceOf() external view returns (uint256);
-
-    // function withdrawalFee() external view returns (uint256);
-    
-    // function annualPercentageYield() external view returns (uint256);
     
     function _deposit(address underlying, address vToken, uint256 _amount) internal {
         IBEP20(underlying).approve(vToken, 0);
@@ -33,11 +17,15 @@ contract StrategyVenus is StrategyStorage {
         return VBep20Interface(vToken).redeem(amount);
     }
 
-    function _balanceOfVToken(address vToken) internal view returns (uint) {
+    function _balanceOfUnderlying(address underlying) internal view returns (uint256) {
+        return IBEP20(underlying).balanceOf(address(this));
+    }
+
+    function _balanceOfVToken(address vToken) internal view returns (uint256) {
         return VTokenInterface(vToken).balanceOf(address(this));
     }
 
-    function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint) {
+    function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(vToken);
         if (balanceOfVToken > 0)
             balanceOfVToken = balanceOfVToken * _getExchangeRate(vToken) / 1e18;
@@ -52,11 +40,11 @@ contract StrategyVenus is StrategyStorage {
         return VTokenInterface(vToken).decimals();
     }
 
-    function _getExchangeRate(address vToken) internal view returns (uint) {
+    function _getExchangeRate(address vToken) internal view returns (uint256) {
         return VTokenInterface(vToken).exchangeRateStored();
     }
 
-    function _getApy() internal view returns (uint256) {
+    function _getApy() internal pure returns (uint256) {
         return 0;
     }
 }
