@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 import "./StrategyStorage.sol";
 import "../interfaces/IBEP20.sol";
 import "../interfaces/IVToken.sol";
+import "../interfaces/IStrategy.sol";
 
-contract StrategyVenus is StrategyStorage {
+contract StrategyStorageVenus is StrategyStorage {
     
     function _deposit(address underlying, address vToken, uint256 _amount) internal {
         IBEP20(underlying).approve(vToken, 0);
@@ -45,6 +46,48 @@ contract StrategyVenus is StrategyStorage {
     }
 
     function _getApy() internal pure returns (uint256) {
+        // [TODO]: calculate to get APY in Venus. 
         return 0;
+    }
+}
+
+
+contract StrategyVenus is StrategyStorageVenus, IStrategy {
+
+    address internal _want;
+    address internal _vToken;
+
+    function want() external override view returns (address) {
+        return _want;
+    }
+
+    function deposit() external override {
+        _deposit(_want, _vToken, _balanceOfUnderlying(_want));
+    }
+
+    function withdraw(uint256 amount) external override {
+        _redeem(_vToken, amount);
+        _sendToVaultWithFee(_want, amount);
+    }
+
+    function withdrawAll() external override returns (uint256) {
+        uint256 balanceOfVToken = _balanceOfVToken(_vToken);
+        _redeem(_vToken, balanceOfVToken);
+
+        uint256 balanceOfBusd = _balanceOfUnderlying(_want);
+        _sendToVault(_want, balanceOfBusd);
+        return balanceOfBusd;
+    }
+
+    function balanceOf() external override view returns (uint256) {
+        return _balanceOfUnderlying(_want) + _balanceOfVTokenInUnderlying(_vToken);
+    }
+
+    function withdrawalFee() external override view returns (uint256) {
+        return _withdrawalFee;
+    }
+    
+    function annualPercentageYield() external override pure returns (uint256) {
+        return _getApy();
     }
 }
