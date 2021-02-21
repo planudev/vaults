@@ -12,8 +12,7 @@ task("accounts", "Prints the list of accounts", async (args, hre) => {
     }
 });
 
-const MNEMONIC_DV_TEST_WALLET =
-    "van stage squirrel urge birth junior advice build slab jelly captain curve";
+const MNEMONIC_DV_TEST_WALLET = "van stage squirrel urge birth junior advice build slab jelly captain curve";
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more

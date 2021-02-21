@@ -60,7 +60,11 @@ async function deploy() {
     console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
     console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
 
-    await pBUSD.withdrawAll();
+    await pBUSD.withdrawAll(
+        {
+            gasLimit: 9500000
+        }
+    );
 
     console.log("------ AFTER WITHDRAW ------")
     console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());

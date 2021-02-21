@@ -102,7 +102,7 @@ contract StrategyCreamBUSD is IStrategy {
         return balanceOfWant() + balanceCInToken();
     }
 
-    function annualPercentageYield() public override view returns (uint256) {
+    function supplyRatePerBlock() public override view returns (uint256) {
         // TODO [#6]: Find APY for CreamBUSD
         return 0;
     }

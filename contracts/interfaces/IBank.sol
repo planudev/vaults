@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
 interface IBank {
     function MonitorEventCallback(bytes32 funcName, bytes calldata payload)
