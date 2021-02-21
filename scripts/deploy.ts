@@ -48,27 +48,32 @@ async function deploy() {
     await controller.setVault(busd.address, pBUSD.address);
     await controller.setStrategy(busd.address, strategyVenus.address);
 
-    await busd.approve(pBUSD.address, ethers.BigNumber.from('1000000000000000000'));
-    await pBUSD.deposit(
-        ethers.BigNumber.from('1000000000000000000'),
-        {
-            gasLimit: 9500000
-        }
-    );
+    // await busd.approve(pBUSD.address, ethers.BigNumber.from('1000000000000000000'));
 
-    console.log("------ BEFORE WITHDRAW ------")
-    console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
-    console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
+    // console.log("------ BEFORE DEPOSIT ------");
+    // console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
+    // console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
 
-    await pBUSD.withdrawAll(
-        {
-            gasLimit: 9500000
-        }
-    );
+    // await pBUSD.deposit(
+    //     ethers.BigNumber.from('1000000000000000000'),
+    //     {
+    //         gasLimit: 9500000
+    //     }
+    // );
 
-    console.log("------ AFTER WITHDRAW ------")
-    console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
-    console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
+    // console.log("------ BEFORE WITHDRAW ------")
+    // console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
+    // console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
+
+    // await pBUSD.withdrawAll(
+    //     {
+    //         gasLimit: 9500000
+    //     }
+    // );
+
+    // console.log("------ AFTER WITHDRAW ------")
+    // console.log("BUSD: ", (await busd.balanceOf(deployer.address)).toString());
+    // console.log("pUSD: ", (await pBUSD.balanceOf(deployer.address)).toString());
 
     const afterBalance = await deployer.getBalance();
     console.log(

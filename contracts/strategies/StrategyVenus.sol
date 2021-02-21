@@ -21,7 +21,6 @@ contract StrategyStorageVenus is StrategyStorage {
     }
 
     function _balanceOfUnderlying(address underlying) internal view returns (uint256) {
-        // console.log("venus balanceOfUnderlying: ", IBEP20(underlying).balanceOf(address(this)));
         return IBEP20(underlying).balanceOf(address(this));
     }
 
@@ -32,11 +31,8 @@ contract StrategyStorageVenus is StrategyStorage {
     function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint256) {
         uint256 exchangeRate = _getExchangeRate(vToken);
         uint256 balanceOfVToken = _balanceOfVToken(vToken);
-        console.log("balanceOfVToken: ", balanceOfVToken);
         if (balanceOfVToken > 0)
-            console.log("exchangeRate: ", exchangeRate);
             balanceOfVToken = balanceOfVToken * exchangeRate / 1e18;
-        console.log("balanceOfVToken after mul with exchange rate: ", balanceOfVToken);
         return balanceOfVToken;
     }
 
@@ -75,15 +71,13 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function withdraw(uint256 amount) external override {
-        // _redeem(_vToken, amount);
         VBep20Interface(_vToken).redeemUnderlying(amount);
-        _sendToVaultWithFee(_want, amount);
+        _sendToVault(_want, amount);
     }
 
     function withdrawAll() external override returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(_vToken);
         if (balanceOfVToken > 0) {
-            // _redeem(_vToken, balanceOfVToken);
             VBep20Interface(_vToken).redeem(balanceOfVToken);
         }
 
@@ -93,7 +87,6 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function balanceOf() external override view returns (uint256) {
-        console.log("balance in strategy: ", _balanceOfUnderlying(_want) + _balanceOfVTokenInUnderlying(_vToken));
         return _balanceOfUnderlying(_want) + _balanceOfVTokenInUnderlying(_vToken);
     }
 
