@@ -42,7 +42,7 @@ contract StrategyStorage {
 
     function _sendToVault(address underlying, uint amount) internal {
         address vault = vaults(underlying);
-        require(vault != address(0), "!vault");
+        require(vault != address(0), "Not a vault!");
         IBEP20(underlying).transfer(vault, amount);
     }
 }
