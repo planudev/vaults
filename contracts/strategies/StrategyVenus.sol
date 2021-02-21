@@ -17,7 +17,7 @@ contract StrategyStorageVenus is StrategyStorage {
     }
 
     function _redeem(address vToken, uint256 amount) internal returns (uint) {
-        return VBep20Interface(vToken).redeem(amount);
+        return VBep20Interface(vToken).redeemUnderlying(amount);
     }
 
     function _balanceOfUnderlying(address underlying) internal view returns (uint256) {
@@ -75,14 +75,16 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function withdraw(uint256 amount) external override {
-        _redeem(_vToken, amount);
+        // _redeem(_vToken, amount);
+        VBep20Interface(_vToken).redeemUnderlying(amount);
         _sendToVaultWithFee(_want, amount);
     }
 
     function withdrawAll() external override returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(_vToken);
         if (balanceOfVToken > 0) {
-            _redeem(_vToken, balanceOfVToken);
+            // _redeem(_vToken, balanceOfVToken);
+            VBep20Interface(_vToken).redeem(balanceOfVToken);
         }
 
         uint256 balanceOfUnderlying = _balanceOfUnderlying(_want);
