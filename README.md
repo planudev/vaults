@@ -12,4 +12,4 @@ StrategyVenus address: 0x5Ac04ec99580C7595C9D114e34356DeC1bAe2A1b
 
 - [x] Venus
 - [ ] ForTube
-- [ ] C.R.A.M.E Finance
+- [ ] C.R.E.A.M. Finance
