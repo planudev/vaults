@@ -6,11 +6,12 @@ import "../interfaces/IBank.sol";
 import "../interfaces/IBEP20.sol";
 import "../interfaces/IFToken.sol";
 import "../interfaces/IStrategy.sol";
+import "../interfaces/IInterestRateModelForTube.sol";
 
 contract StrategyStorageForTube is StrategyStorage {
 
     address internal _bankAddress = address(0x0cEA0832e9cdBb5D476040D58Ea07ecfbeBB7672);
-    
+    address internal _interestRateAddress = address(0xb932d9f1641C0f8181117944FB8Ac3e41c837fdC);
     function _deposit(address underlying, uint256 amount) internal {
         IBank(_bankAddress).deposit(underlying, amount);
     }
@@ -47,8 +48,18 @@ contract StrategyStorageForTube is StrategyStorage {
         return IFToken(fToken).exchangeRateStored();
     }
 
-    function _getApy(address fToken) internal view returns (uint256) {
-        return IFToken(fToken).APY();
+    function _supplyRatePerBlock(address underlying, address fToken) internal view returns (uint256) {
+        uint cash = IFToken(fToken).tokenCash(underlying, address(controller));
+        uint totalBorrows = IFToken(fToken).totalBorrows();
+        uint totalReserves = IFToken(fToken).totalReserves();
+        uint reserveFactor = IFToken(fToken).reserveFactor();
+
+        return IInterestRateModel(_interestRateAddress).getSupplyRate(
+            cash,
+            totalBorrows,
+            totalReserves,
+            reserveFactor
+        );
     }
 }
 
@@ -94,7 +105,7 @@ contract StrategyForTube is StrategyStorageForTube, IStrategy {
         return _withdrawalFee;
     }
     
-    function annualPercentageYield() external override view returns (uint256) {
-        return _getApy(_fToken);
+    function supplyRatePerBlock() external override view returns (uint256) {
+        return _supplyRatePerBlock(_want, _fToken);
     }
 }
