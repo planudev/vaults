@@ -63,10 +63,10 @@ contract Controller {
         for (uint i = 0; i < availableStrategies[_token].length(); i++) {
             if (bestStrategy == address(0)) {
                 bestStrategy = availableStrategies[_token].at(i);
-                maxApy = IStrategy(availableStrategies[_token].at(i)).annualPercentageYield();
+                maxApy = IStrategy(availableStrategies[_token].at(i)).supplyRatePerBlock();
             }
 
-            uint256 apy = IStrategy(availableStrategies[_token].at(i)).annualPercentageYield();
+            uint256 apy = IStrategy(availableStrategies[_token].at(i)).supplyRatePerBlock();
             if (maxApy < apy) {
                 bestStrategy = availableStrategies[_token].at(i);
                 maxApy = apy;
