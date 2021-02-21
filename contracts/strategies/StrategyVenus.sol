@@ -27,9 +27,11 @@ contract StrategyStorageVenus is StrategyStorage {
     }
 
     function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint256) {
+        uint256 exchangeRate = _getExchangeRate(vToken);
         uint256 balanceOfVToken = _balanceOfVToken(vToken);
-        if (balanceOfVToken > 0)
-            balanceOfVToken = balanceOfVToken * _getExchangeRate(vToken) / 1e18;
+        if (balanceOfVToken > 0) {
+            balanceOfVToken = balanceOfVToken * exchangeRate / 1e18;
+        }
         return balanceOfVToken;
     }
 
@@ -45,9 +47,8 @@ contract StrategyStorageVenus is StrategyStorage {
         return VTokenInterface(vToken).exchangeRateStored();
     }
 
-    function _getApy() internal pure returns (uint256) {
-        // [TODO] #1: calculate to get APY in Venus. 
-        return 0;
+    function _supplyRatePerBlock(address vToken) internal view returns (uint256) {
+        return VTokenInterface(vToken).supplyRatePerBlock();
     }
 }
 
@@ -92,7 +93,7 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
         return _withdrawalFee;
     }
     
-    function annualPercentageYield() external override pure returns (uint256) {
-        return _getApy();
+    function supplyRatePerBlock() external override view returns (uint256) {
+        return _supplyRatePerBlock(_vToken);
     }
 }
