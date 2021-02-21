@@ -13,18 +13,20 @@ contract Controller {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address public strategist;
+    address public rewards;
 
     // mapping between (token, vault)
-    mapping (address => address) vaults;
+    mapping (address => address) public vaults;
 
     // active strategy on certain token (token, strategy)
-    mapping (address => address) strategies;
+    mapping (address => address) public strategies;
 
     // token -> strategy[]
     mapping (address => EnumerableSet.AddressSet) availableStrategies;
 
     constructor() {
         strategist = msg.sender;
+        rewards = address(this);
     }
 
     function setVault(address _token, address _vault) public {
@@ -43,6 +45,7 @@ contract Controller {
         }
 
         strategies[_token] = _strategy;
+        addStrategy(_token, _strategy);
     }
 
     function addStrategy(address _token, address _strategy) public {
@@ -55,6 +58,19 @@ contract Controller {
 
     function balanceOf(address _token) external view returns (uint256) {
         return IStrategy(strategies[_token]).balanceOf();
+    }
+
+    function withdraw(address _token, uint256 _amount) external {
+        require(msg.sender == vaults[_token], "!vault");
+        IStrategy(strategies[_token]).withdraw(_amount);
+    }
+
+    function earn(address _token, uint256 _amount) public {
+        address _strategy = strategies[_token];
+        address _want = IStrategy(_strategy).want();
+        require(_want == _token, "!want");
+        IERC20(_token).safeTransfer(_strategy, _amount);
+        IStrategy(_strategy).deposit();
     }
 
     function getBestStrategy(address _token) internal view returns (address bestStrategy) {
@@ -80,9 +96,9 @@ contract Controller {
         address currentStrategy = strategies[_token];
         address bestStrategy = getBestStrategy(_token);
 
-        if (currentStrategy == bestStrategy) {
-            return;
-        }
+        // if (currentStrategy == bestStrategy) {
+        //     return;
+        // }
 
         currentStrategy = bestStrategy;
         IERC20(_token).safeTransfer(currentStrategy, _amount);

@@ -7,6 +7,8 @@ import "./interfaces/IVault.sol";
 import "./interfaces/IController.sol";
 import "./libraries/SafeERC20.sol";
 
+import "hardhat/console.sol";
+
 contract pVault is ERC20, IVault {
     using SafeERC20 for IERC20;
 
@@ -40,6 +42,7 @@ contract pVault is ERC20, IVault {
         // TODO [#1]: Maybe need to check for minimum invest something like
         // if it have more than 0.1 Tokens then invest to save gas fee
         uint256 availableBalance = available();
+        console.log("invest - available: ", availableBalance);
         token.safeTransfer(controller, availableBalance);
         IController(controller).invest(address(token), availableBalance);
     }
@@ -59,6 +62,8 @@ contract pVault is ERC20, IVault {
             shares = (amount * totalSupply()) / pool; // (amount / (pool / totalSupply))
         }
 
+        console.log("shares: ", shares);
+
         _mint(msg.sender, shares);
         invest();
     }
@@ -68,15 +73,30 @@ contract pVault is ERC20, IVault {
     }
 
     function withdraw(uint256 _shares) public override {
+        console.log("withdraw shares: ", _shares);
+
         uint256 exchangeRate = balance() / totalSupply();
+
+        console.log("balance: ", balance());
+        console.log("totalSupply: ", totalSupply());
+        console.log("pToken exchangeRate: ", exchangeRate);
+
+        if (exchangeRate <= 0) {
+            revert("exchangeRate below 0");
+        }
+
         uint256 claimAmount = _shares * exchangeRate;
         _burn(msg.sender, _shares);
 
         uint256 currentBalance = token.balanceOf(address(this));
 
+
         if (currentBalance < claimAmount) {
             IController(controller).withdraw(address(token), claimAmount - currentBalance);
         }
+        
+        console.log("vault balance: ", currentBalance);
+        console.log("claimAmount: ", claimAmount);
 
         token.safeTransfer(msg.sender, claimAmount);
         invest();

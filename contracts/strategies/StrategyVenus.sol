@@ -6,6 +6,8 @@ import "../interfaces/IBEP20.sol";
 import "../interfaces/IVToken.sol";
 import "../interfaces/IStrategy.sol";
 
+import "hardhat/console.sol";
+
 contract StrategyStorageVenus is StrategyStorage {
     
     function _deposit(address underlying, address vToken, uint256 _amount) internal {
@@ -19,6 +21,7 @@ contract StrategyStorageVenus is StrategyStorage {
     }
 
     function _balanceOfUnderlying(address underlying) internal view returns (uint256) {
+        // console.log("venus balanceOfUnderlying: ", IBEP20(underlying).balanceOf(address(this)));
         return IBEP20(underlying).balanceOf(address(this));
     }
 
@@ -28,8 +31,11 @@ contract StrategyStorageVenus is StrategyStorage {
 
     function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(vToken);
+        console.log("balanceOfVToken: ", balanceOfVToken);
         if (balanceOfVToken > 0)
+            console.log("exchangeRate: ", _getExchangeRate(vToken));
             balanceOfVToken = balanceOfVToken * _getExchangeRate(vToken) / 1e18;
+        console.log("balanceOfVToken after mul with exchange rate: ", balanceOfVToken);
         return balanceOfVToken;
     }
 
@@ -83,6 +89,7 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function balanceOf() external override view returns (uint256) {
+        console.log("balance in strategy: ", _balanceOfUnderlying(_want) + _balanceOfVTokenInUnderlying(_vToken));
         return _balanceOfUnderlying(_want) + _balanceOfVTokenInUnderlying(_vToken);
     }
 
