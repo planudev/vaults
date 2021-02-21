@@ -42,7 +42,7 @@ contract StrategyCreamBUSD is IStrategy {
             _amount = _amount + balance;
         }
 
-        // TODO [$60326e64ad59fd09557bdbff]: send fee to platform tresury
+        // TODO [#4]: send fee to platform tresury
         // uint256 _fee = _amount * withdrawalFee / 100;
         // IERC20(want).safeTransfer(IController(controller).rewards(), _fee);
 
@@ -67,7 +67,7 @@ contract StrategyCreamBUSD is IStrategy {
     }
 
     function withdrawAll() external override returns (uint256 balance) {
-        // TODO [$60326e64ad59fd09557bdc00]: withdrawAll in StrategyCreamBUSD not implemented yet.
+        // TODO [#5]: withdrawAll in StrategyCreamBUSD not implemented yet.
         // this function is for controller so we will be omit it for now.
         return 0;
     }
@@ -103,7 +103,7 @@ contract StrategyCreamBUSD is IStrategy {
     }
 
     function annualPercentageYield() public override view returns (uint256) {
-        // TODO [$60326e64ad59fd09557bdc01]: Find APY for CreamBUSD
+        // TODO [#6]: Find APY for CreamBUSD
         return 0;
     }
 }
