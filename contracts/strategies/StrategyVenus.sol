@@ -8,10 +8,10 @@ import "../interfaces/IStrategy.sol";
 
 contract StrategyStorageVenus is StrategyStorage {
     
-    function _deposit(address underlying, address vToken, uint256 _amount) internal {
+    function _deposit(address underlying, address vToken, uint256 amount) internal {
         IBEP20(underlying).approve(vToken, 0);
-        IBEP20(underlying).approve(vToken, _amount);
-        VBep20Interface(vToken).mint(_amount);
+        IBEP20(underlying).approve(vToken, amount);
+        VBep20Interface(vToken).mint(amount);
     }
 
     function _redeem(address vToken, uint256 amount) internal returns (uint) {
@@ -62,9 +62,9 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function deposit() external override {
-        uint256 balance = _balanceOfUnderlying(_want);
-        if (balance > 0) {
-            _deposit(_want, _vToken, balance);
+        uint256 balanceOfUnderlying = _balanceOfUnderlying(_want);
+        if (balanceOfUnderlying > 0) {
+            _deposit(_want, _vToken, balanceOfUnderlying);
         }
     }
 
@@ -75,11 +75,13 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
 
     function withdrawAll() external override returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(_vToken);
-        _redeem(_vToken, balanceOfVToken);
+        if (balanceOfVToken > 0) {
+            _redeem(_vToken, balanceOfVToken);
+        }
 
-        uint256 balanceOfBusd = _balanceOfUnderlying(_want);
-        _sendToVault(_want, balanceOfBusd);
-        return balanceOfBusd;
+        uint256 balanceOfUnderlying = _balanceOfUnderlying(_want);
+        _sendToVault(_want, balanceOfUnderlying);
+        return balanceOfUnderlying;
     }
 
     function balanceOf() external override view returns (uint256) {
