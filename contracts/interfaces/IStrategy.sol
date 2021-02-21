@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 interface IStrategy {
@@ -9,8 +8,6 @@ interface IStrategy {
 
     // Controller | Vault role - withdraw should always return to Vault
     function withdraw(uint256) external;
-
-    function skim() external;
 
     // Controller | Vault role - withdraw should always return to Vault
     function withdrawAll() external returns (uint256);
