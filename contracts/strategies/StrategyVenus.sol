@@ -10,10 +10,10 @@ import "hardhat/console.sol";
 
 contract StrategyStorageVenus is StrategyStorage {
     
-    function _deposit(address underlying, address vToken, uint256 _amount) internal {
+    function _deposit(address underlying, address vToken, uint256 amount) internal {
         IBEP20(underlying).approve(vToken, 0);
-        IBEP20(underlying).approve(vToken, _amount);
-        VBep20Interface(vToken).mint(_amount);
+        IBEP20(underlying).approve(vToken, amount);
+        VBep20Interface(vToken).mint(amount);
     }
 
     function _redeem(address vToken, uint256 amount) internal returns (uint) {
@@ -30,11 +30,12 @@ contract StrategyStorageVenus is StrategyStorage {
     }
 
     function _balanceOfVTokenInUnderlying(address vToken) internal view returns (uint256) {
+        uint256 exchangeRate = _getExchangeRate(vToken);
         uint256 balanceOfVToken = _balanceOfVToken(vToken);
         console.log("balanceOfVToken: ", balanceOfVToken);
         if (balanceOfVToken > 0)
-            console.log("exchangeRate: ", _getExchangeRate(vToken));
-            balanceOfVToken = balanceOfVToken * _getExchangeRate(vToken) / 1e18;
+            console.log("exchangeRate: ", exchangeRate);
+            balanceOfVToken = balanceOfVToken * exchangeRate / 1e18;
         console.log("balanceOfVToken after mul with exchange rate: ", balanceOfVToken);
         return balanceOfVToken;
     }
@@ -51,9 +52,8 @@ contract StrategyStorageVenus is StrategyStorage {
         return VTokenInterface(vToken).exchangeRateStored();
     }
 
-    function _getApy() internal pure returns (uint256) {
-        // [TODO] #1: calculate to get APY in Venus. 
-        return 0;
+    function _supplyRatePerBlock(address vToken) internal view returns (uint256) {
+        return VTokenInterface(vToken).supplyRatePerBlock();
     }
 }
 
@@ -68,9 +68,9 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
     }
 
     function deposit() external override {
-        uint256 balance = _balanceOfUnderlying(_want);
-        if (balance > 0) {
-            _deposit(_want, _vToken, balance);
+        uint256 balanceOfUnderlying = _balanceOfUnderlying(_want);
+        if (balanceOfUnderlying > 0) {
+            _deposit(_want, _vToken, balanceOfUnderlying);
         }
     }
 
@@ -81,11 +81,13 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
 
     function withdrawAll() external override returns (uint256) {
         uint256 balanceOfVToken = _balanceOfVToken(_vToken);
-        _redeem(_vToken, balanceOfVToken);
+        if (balanceOfVToken > 0) {
+            _redeem(_vToken, balanceOfVToken);
+        }
 
-        uint256 balanceOfBusd = _balanceOfUnderlying(_want);
-        _sendToVault(_want, balanceOfBusd);
-        return balanceOfBusd;
+        uint256 balanceOfUnderlying = _balanceOfUnderlying(_want);
+        _sendToVault(_want, balanceOfUnderlying);
+        return balanceOfUnderlying;
     }
 
     function balanceOf() external override view returns (uint256) {
@@ -97,7 +99,7 @@ contract StrategyVenus is StrategyStorageVenus, IStrategy {
         return _withdrawalFee;
     }
     
-    function annualPercentageYield() external override pure returns (uint256) {
-        return _getApy();
+    function supplyRatePerBlock() external override view returns (uint256) {
+        return _supplyRatePerBlock(_vToken);
     }
 }
